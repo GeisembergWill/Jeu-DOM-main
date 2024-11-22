@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+    <div id="board"></div>
+
+    <script>
+    // Fonction pour mélanger les enfants d'un élément parent
+    function shuffleChildren(parent) {
+        const children = parent.children; 
+        let i = children.length, k, temp;  
+        while (--i > 0) { // On boucle tant que `i - 1` est positif
+            k = Math.floor(Math.random() * (i + 1)); // `k` stocke un nombre aléatoire basé sur `i`
+            temp = children[k]; // Temporairement pointe sur l'élément à la position `k`
+            parent.appendChild(temp); // Place l'élément `temp` à la fin du contenu de `parent`
+        }
+    }
+
+    // Fonction pour afficher une réaction visuelle sur une boîte
+    function showReaction(type, clickedBox) {
+        clickedBox.classList.add(type);
+        if (type !== "success") { // Suppression de la classe après un délai sauf pour "success"
+            setTimeout(function() {
+                clickedBox.classList.remove(type);
+            }, 800);
+        }
+    }    
+
+    const box = document.createElement("div"); // Crée un nouvel élément `div`
+    box.classList.add("box"); // Ajoute la classe "box" à l'élément
+
+    const board = document.querySelector("#board"); // Récupère l'élément avec l'ID "board"
+
+    let nb = 1; // Variable qui représente le numéro attendu et s'incrémente après un clic valide
+        
+    for (let i = 1; i <= 10; i++) {
+        const newbox = box.cloneNode(); // Crée une copie de `box`
+        newbox.innerText = i; // Définit le texte du nouveau `box`
+        board.appendChild(newbox); // Ajoute `newbox` en enfant de `board`
+
+        newbox.addEventListener("click", function() {
+            if (i === nb) { // Clic valide
+                newbox.classList.add("box-valid");
+                if (nb === board.children.length) { // Toutes les boîtes sont validées
+                    board.querySelectorAll(".box").forEach(function(box) {
+                        showReaction("success", box); // Montre une réaction de succès
+                    });
+                }
+                nb++;
+            } else if (i > nb) { // Clic sur une boîte avec un numéro plus grand que attendu
+                showReaction("error", newbox);
+                nb = 1; // Réinitialise `nb`
+                board.querySelectorAll(".box-valid").forEach(function(validBox) {
+                    validBox.classList.remove("box-valid"); // Réinitialise les boîtes validées
+                });
+            } else { // Clic sur une boîte déjà validée
+                showReaction("notice", newbox);
+            }
+        });
+    }
+        
+    shuffleChildren(board); // Mélange les boîtes au chargement
+    </script>
+</body>
+</html>
